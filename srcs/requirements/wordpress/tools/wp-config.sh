@@ -1,20 +1,15 @@
-# ~/inception/srcs/requirements/wordpress/tools/wp-config.sh
 #!/bin/bash
 
-# Read passwords from secrets files
-WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
-WP_PASSWORD=$(cat /run/secrets/wp_password)
-MYSQL_PASSWORD=$(cat /run/secrets/mysql_password)
+sleep 10;
 
-# Wait for MariaDB to be ready
-echo "Waiting for MariaDB..."
-while ! nc -z mariadb 3306; do
-  sleep 1
-done
-echo "MariaDB is ready."
+# Using environment variables defined in .env (WP_ADMIN_PASSWORD, WP_USER_PASSWORD, MYSQL_PASSWORD)
+# If you need to verify they are set, you can add checks here:
+: "${WP_ADMIN_PASSWORD:?WP_ADMIN_PASSWORD is not set}"
+: "${WP_USER_PASSWORD:?WP_USER_PASSWORD is not set}"
+: "${MYSQL_PASSWORD:?MYSQL_PASSWORD is not set}"
 
 # Navigate to the WordPress directory
-cd /var/www/wordpress
+cd /home/fvastena/Desktop/inceptiontest/var/www/wordpress
 
 # Create wp-config.php if it doesn't exist
 if [ ! -f wp-config.php ]; then

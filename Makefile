@@ -11,24 +11,24 @@ all: build up
 
 # Build Docker images
 build:
-    @echo "Building Docker images..."
-    docker-compose -f ${DOCKER_COMPOSE_FILE} build
+	@echo "Building Docker images..."
+	docker-compose -f ${DOCKER_COMPOSE_FILE} build
 
 # Start containers
 up:
-    @echo "Starting containers..."
-    docker-compose -f ${DOCKER_COMPOSE_FILE} up -d
+	@echo "Starting containers..."
+	docker-compose -f ${DOCKER_COMPOSE_FILE} up -d
 
 # Stop and remove containers, networks, and volumes
 down:
-    @echo "Stopping and removing containers, network, and volumes..."
-    docker-compose -f ${DOCKER_COMPOSE_FILE} down -v
+	@echo "Stopping and removing containers, network, and volumes..."
+	docker-compose -f ${DOCKER_COMPOSE_FILE} down -v
 
 # Clean up: stop and remove containers, networks, volumes, and built images
 clean: down
-    @echo "Removing built images..."
-    docker-compose -f ${DOCKER_COMPOSE_FILE} rm -fsv
-    docker image prune -f --filter label=com.docker.compose.project=${PWD##*/} # Remove images built by compose
+	@echo "Removing built images..."
+	docker-compose -f ${DOCKER_COMPOSE_FILE} rm -fsv
+	docker image prune -f --filter label=com.docker.compose.project=${PWD##*/} # Remove images built by compose
 
 # Rebuild: clean and then build and up
 re: clean all
