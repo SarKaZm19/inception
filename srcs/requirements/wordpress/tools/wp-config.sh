@@ -9,7 +9,7 @@ sleep 10;
 : "${MYSQL_PASSWORD:?MYSQL_PASSWORD is not set}"
 
 # Navigate to the WordPress directory
-cd /home/fvastena/Desktop/inceptiontest/var/www/wordpress
+cd var/www/wordpress
 
 # Create wp-config.php if it doesn't exist
 if [ ! -f wp-config.php ]; then

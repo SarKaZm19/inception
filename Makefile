@@ -28,7 +28,7 @@ down:
 clean: down
 	@echo "Removing built images..."
 	docker-compose -f ${DOCKER_COMPOSE_FILE} rm -fsv
-	docker image prune -f --filter label=com.docker.compose.project=${PWD##*/} # Remove images built by compose
+	docker image prune -f --filter label=com.docker.compose.project=${PWD##*/}
 
 # Rebuild: clean and then build and up
 re: clean all

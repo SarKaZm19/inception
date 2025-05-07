@@ -17,7 +17,7 @@ services:
       dockerfile: Dockerfile
     container_name: mariadb
     volumes:
-      - mariadb_data:/home/fvastena/Desktop/inception/var/lib/mysql
+      - mariadb_data:/var/lib/mysql
     networks:
       - inception_network
     env_file:
