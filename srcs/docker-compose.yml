@@ -9,7 +9,7 @@ services:
     ports:
       - "443:443" 
     volumes:
-      - wordpress_files:/var/www/html
+      - wordpress:/var/www/html
     networks:
       - inception_network
     depends_on:
@@ -23,7 +23,7 @@ services:
       context: ./requirements/wordpress
     image: wordpress_inception
     volumes:
-      - wordpress_files:/var/www/html
+      - wordpress:/var/www/html
     depends_on:
       - mariadb
     env_file:
@@ -40,20 +40,20 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - mariadb:/var/lib/mysql
     env_file: .env
     networks:
       - inception_network
     restart: always
 
 volumes:
-  mariadb_data:
+  mariadb:
     driver: local
     driver_opts:
       o: bind
       type: none
       device: /home/fvastena/data/mariadb
-  wordpress_files:
+  wordpress:
     driver: local
     driver_opts:
       o: bind
