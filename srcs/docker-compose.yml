@@ -1,69 +1,82 @@
-# ~/inception/srcs/docker-compose.yml
-
-networks:
-  inception_network:
-    driver: bridge
-
-volumes:
-  wordpress_data:
-    driver: local
-  mariadb_data:
-    driver: local
+# srcs/docker-compose.yml
+version: '3.8' # Utilisez une version compatible avec les secrets et networks
 
 services:
-  mariadb:
+  nginx:
+    container_name: nginx
     build:
-      context: ./requirements/mariadb
+      context: ./requirements/nginx # Chemin vers le Dockerfile NGINX
       dockerfile: Dockerfile
-    container_name: mariadb
+    image: nginx_inception:1.0.0 # Nom de l'image et tag (pas latest)
+    ports:
+      - "443:443" # Mapper le port 443 de l'hôte au port 443 du conteneur NGINX
     volumes:
-      - mariadb_data:/var/lib/mysql
+      # Monter le dossier data de l'hôte (à créer si nécessaire)
+      - wordpress_files:/var/www/html # Monter le volume des fichiers WordPress
     networks:
-      - inception_network
-    env_file:
-      - .env
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    restart: always
+      - inception_network # Attacher au réseau personnalisé
+    restart: on-failure # Redémarrer automatiquement en cas d'échec
 
   wordpress:
-    build:
-      context: ./requirements/wordpress
-      dockerfile: Dockerfile
     container_name: wordpress
-    volumes:
-      - wordpress_data:/var/www/wordpress
-    networks:
-      - inception_network
-    restart: always
-    env_file:
-      - .env
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      WP_EMAIL: user@${DOMAIN_NAME}
-      WP_ADMIN_USER: ${WP_ADMIN_USER}
-      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD}
-      WP_USER: ${WP_USER}
-      WP_USER_PASSWORD: ${WP_USER_PASSWORD}
-    depends_on:
-      - mariadb
-
-  nginx:
     build:
-      context: ./requirements/nginx
+      context: ./requirements/wordpress # Chemin vers le Dockerfile WordPress
       dockerfile: Dockerfile
-      args:
-        - DOMAIN_NAME=${DOMAIN_NAME}
-    container_name: nginx
-    ports:
-      - "4443:443"
-    networks:
-      - inception_network
-    restart: always
-    env_file:
-      - .env
+    image: wordpress_inception:1.0.0 # Nom de l'image et tag (pas latest)
+    volumes:
+      - wordpress_files:/var/www/html # Monter le volume des fichiers WordPress
     depends_on:
-      - wordpress
+      - mariadb # S'assurer que MariaDB est lancé avant WordPress
+    env_file:
+      - .env # Charger les variables du fichier .env
+    networks:
+      - inception_network # Attacher au réseau personnalisé
+    restart: on-failure # Redémarrer automatiquement en cas d'échec
+
+  mariadb:
+    container_name: mariadb
+    build:
+      context: ./requirements/mariadb # Chemin vers le Dockerfile MariaDB
+      dockerfile: Dockerfile
+    image: mariadb_inception:1.0.0 # Nom de l'image et tag (pas latest)
+    volumes:
+      - mariadb_data:/var/lib/mysql # Monter le volume des données MariaDB
+    env_file:
+      - .env # Charger les variables du fichier .env
+    # Utilisation des secrets pour les mots de passe sensibles
+    secrets:
+      - db_root_password
+      - db_password
+    networks:
+      - inception_network # Attacher au réseau personnalisé
+    restart: on-failure # Redémarrer automatiquement en cas d'échec
+
+# Définition des volumes persistants
+volumes:
+  mariadb_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/fvastena/data/mariadb
+  wordpress_files:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/fvastena/data/wordpress
+
+
+# Définition du réseau personnalisé
+networks:
+  inception_network:
+    driver: bridge # Le driver bridge est le plus courant pour les applications multi-conteneurs
+
+# Définition des secrets utilisés (correspondant aux noms utilisés dans les services)
+secrets:
+  db_root_password:
+    file: ${MYSQL_ROOT_PASSWORD_FILE}
+  db_password:
+    file: ${MYSQL_PASSWORD_FILE}
+  wp_admin_password: # Exemple pour le mot de passe admin WP
+    file: ${WP_ADMIN_PASSWORD_FILE}

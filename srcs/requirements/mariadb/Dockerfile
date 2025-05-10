@@ -1,17 +1,20 @@
 # ~/inception/srcs/requirements/mariadb/Dockerfile
-FROM debian:bullseye
+FROM debian:bookworm
 
-# Set environment variables for non-interactive installation
-ENV DEBIAN_FRONTEND=noninteractive
+# Installer MariaDB Server
+RUN apt-get update && apt-get install -y mariadb-server \
+    && rm -rf /var/lib/apt/lists/* # Nettoyer les caches APT
 
-# Install MariaDB server and client
-RUN apt-get update && apt-get install -y mariadb-server mariadb-client && rm -rf var/lib/apt/lists/*
+# Copier le script d'initialisation de la base de données
+COPY ./tools/init_db.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/init_db.sh
 
-# Copy initialization script
-COPY ./tools/init_db.sh /docker-entrypoint-initdb.d/
-
-# Expose the default MariaDB port
+# Exposer le port par défaut de MariaDB (interne au réseau Docker)
 EXPOSE 3306
 
-# Command to run MariaDB server
-CMD ["mysqld"]
+# Définir le point d'entrée du conteneur
+# Utiliser un script qui s'exécute et s'assure que le service principal reste en cours
+CMD ["/usr/local/bin/init_db.sh"]
+
+# Alternative simple (moins robuste pour l'init)
+# CMD ["mysqld"]

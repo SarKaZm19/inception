@@ -1,40 +1,49 @@
-# ~/inception/Makefile
+# Makefile
 
-# Include the .env file to use variables like DOMAIN_NAME
-include srcs/.env
+# Définir le chemin vers le dossier srcs
+SRCS_DIR = srcs
 
-# Define the path to docker-compose.yml
-DOCKER_COMPOSE_FILE = srcs/docker-compose.yml
+# Nom du fichier docker-compose
+COMPOSE_FILE = $(SRCS_DIR)/docker-compose.yml
 
-# Default target: build and up
+# Nom du fichier .env
+ENV_FILE = $(SRCS_DIR)/.env
+
+# Variables pour les secrets (à adapter si vous en ajoutez)
+SECRETS_DIR = secrets
+DB_PASSWORD_SECRET = $(SECRETS_DIR)/db_password.txt
+DB_ROOT_PASSWORD_SECRET = $(SECRETS_DIR)/db_root_password.txt
+WP_ADMIN_PASSWORD_SECRET = $(SECRETS_DIR)/wp_admin_password.txt
+
+# Cible par défaut : construire et lancer les services
 all: build up
 
-# Build Docker images
+# Construire les images Docker
 build:
 	@echo "Building Docker images..."
-	docker-compose -f ${DOCKER_COMPOSE_FILE} build
+	docker compose -f $(COMPOSE_FILE) build
 
-# Start containers
+# Lancer les conteneurs
 up:
 	@echo "Starting containers..."
-	docker-compose -f ${DOCKER_COMPOSE_FILE} up -d
+# --env-file pour charger les variables du .env
+# --secret pour monter les secrets dans les conteneurs
+	docker compose -f $(COMPOSE_FILE) --env-file $(ENV_FILE) up -d \
+		--secret db_password,source=$(DB_PASSWORD_SECRET) \
+		--secret db_root_password,source=$(DB_ROOT_PASSWORD_SECRET) \
+		--secret wp_admin_password,source=$(WP_ADMIN_PASSWORD_SECRET)
 
-# Stop and remove containers, networks, and volumes
+# Arrêter les conteneurs
 down:
-	@echo "Stopping and removing containers, network, and volumes..."
-	docker-compose -f ${DOCKER_COMPOSE_FILE} down -v
+	@echo "Stopping containers..."
+	docker compose -f $(COMPOSE_FILE) down
 
-# Clean up: stop and remove containers, networks, volumes, and built images
+# Nettoyer (arrêter les conteneurs et supprimer les images, volumes, réseaux)
 clean: down
-	@echo "Removing built images..."
-	docker-compose -f ${DOCKER_COMPOSE_FILE} rm -fsv
-	docker image prune -f --filter label=com.docker.compose.project=${PWD##*/}
+	@echo "Cleaning up Docker resources..."
+	docker compose -f $(COMPOSE_FILE) down --volumes --rmi all --remove-orphans
 
-# Rebuild: clean and then build and up
+# Redémarrer les conteneurs
 re: clean all
 
-# Phony targets
 .PHONY: all build up down clean re
-
-
-

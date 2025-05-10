@@ -1,28 +1,24 @@
-# ~/inception/srcs/requirements/nginx/Dockerfile
-ARG DEBIAN_VERSION=bullseye
-FROM debian:${DEBIAN_VERSION}
+# srcs/requirements/nginx/Dockerfile
 
-# Set environment variables for non-interactive installation
-ENV DEBIAN_FRONTEND=noninteractive
+# Utiliser une version stable de Debian ou Alpine
+FROM debian:bookworm
 
-# Install NGINX and OpenSSL
-RUN apt-get update && \
-    apt-get install -y nginx openssl && \
-    rm -rf /home/fvastena/Desktop/inceptiontest/var/lib/apt/lists/*
+# Installer Nginx, OpenSSL (pour générer les certificats) et netcat (pour attendre WordPress)
+RUN apt-get update && apt-get install -y nginx openssl netcat \
+    && rm -rf /var/lib/apt/lists/*
 
-# Generate SSL certificate and key
-# This is a self-signed certificate for testing. For production, use a CA.
-RUN openssl req -x509 -nodes -days 365 \
-    -newkey rsa:2048 \
-    -keyout /home/fvastena/Desktop/inceptiontest/etc/ssl/private/nginx.key \
-    -out /home/fvastena/Desktop/inceptiontest/etc/ssl/certs/nginx.crt \
-    -subj "/C=BE/ST=Brussels/L=Brussels/O=42/OU=Inception/CN=${DOMAIN_NAME}"
+# Copier la configuration Nginx
+COPY ./conf/nginx.conf /etc/nginx/conf.d/default.conf # Ou dans sites-available/ et créer un lien symbolique
 
-# Copy NGINX configuration file
-COPY ./conf/nginx.conf /home/fvastena/Desktop/inceptiontest/etc/nginx/nginx.conf
+# Créer le répertoire pour les certificats SSL
+RUN mkdir -p /etc/nginx/ssl
 
-# Expose port 443
+# Copier le script de génération de certificats et de démarrage
+COPY ./tools/start_nginx.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/start_nginx.sh
+
+# Exposer le port Nginx (celui mappé à l'hôte)
 EXPOSE 443
 
-# Command to run NGINX in the foreground
-CMD ["nginx", "-g", "daemon off;"]
+# Définir le point d'entrée
+CMD ["/usr/local/bin/start_nginx.sh"]

@@ -1,46 +1,40 @@
-# ~/inception/srcs/requirements/wordpress/Dockerfile
-FROM debian:bullseye
+# srcs/requirements/wordpress/Dockerfile
 
-# Set environment variables for non-interactive installation
-ENV DEBIAN_FRONTEND=noninteractive
+# Utiliser une version stable de Debian ou Alpine
+FROM debian:bookworm
 
-# Install necessary packages: php, php-fpm, php-mysql, wget, etc.
-RUN apt-get update && \
-    apt-get install -y \
-    php-fpm \
-    php-mysql \
-    php-cli \
+# Installer les dépendances PHP et autres extensions nécessaires à WordPress
+RUN apt-get update && apt-get install -y \
+    php-fpm=8.2 \
+    php-mysql=8.2 \
+    php-cli=8.2 \
+    php-curl=8.2 \
+    php-gd=8.2 \
+    php-intl=8.2 \
+    php-mbstring=8.2 \
+    php-soap=8.2 \
+    php-xml=8.2 \
+    php-xmlrpc=8.2 \
+    php-zip=8.2 \
     wget \
-    curl \
-    && rm -rf var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-# Download and extract WordPress
-RUN apt-get update && \
-    apt-get install -y php-cli php-fpm php-mysql wget curl unzip netcat && \
-    rm -rf var/lib/apt/lists/*
+# Télécharger et installer WordPress
+WORKDIR /var/www/html/
+RUN wget https://wordpress.org/latest.tar.gz \
+    && tar -xzf latest.tar.gz \
+    && mv wordpress/* . \
+    && rm -rf wordpress latest.tar.gz
 
-# Installer WP-CLI
-RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-    chmod +x wp-cli.phar && \
-    mv wp-cli.phar usr/local/bin/wp
+# Copier le fichier de configuration php-fpm (pour s'assurer qu'il écoute correctement)
+COPY ./conf/www.conf /etc/php/8.2/fpm/pool.d/
 
-# Copy WordPress configuration script
-COPY ./tools/wp-config.sh usr/local/bin/
+# Copier le script de démarrage et configuration de WordPress
+COPY ./tools/start_wp.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/start_wp.sh
 
-# Make the script executable
-RUN chmod +x usr/local/bin/wp-config.sh
-
-# Copy php-fpm configuration (optional, default might be sufficient)
-# COPY ./conf/www.conf /etc/php/7.4/fpm/pool.d/www.conf # Adjust version
-
-# Set the working directory
-WORKDIR var/www/wordpress
-
-# Run the configuration script before starting php-fpm
-ENTRYPOINT ["usr/local/bin/wp-config.sh"]
-
-# Command to run php-fpm
-CMD ["php-fpm7.4", "-F"]
-
-# Expose the default php-fpm port
+# Exposer le port de PHP-FPM (interne au réseau Docker)
 EXPOSE 9000
+
+# Définir le point d'entrée
+CMD ["/usr/local/bin/start_wp.sh"]
