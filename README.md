@@ -75,3 +75,22 @@ Create Makefile and compile project by calling docker-compose and dockerfiles
 
 
 # Docker Docs
+--> Plateforme qui permet d'isoler des processus grâce à des conteneurs 
+--> Plus facile et rapide qu'une VM
+
+Dockerfile : Script contenant une série d'instructions pour construire une image Docker
+
+Docker Image : Modèle en lecture seule qui contient les instructions pour céréer un conteneur --> code de l'app, dépendance, bibliothèque, fichier de config...
+
+Docker Container : Instance exécutable d'une image Docker. Ils sont isolé des autres conteneurs et de la machine hôte
+
+Docker Compose : Outil qui définit et gère les applications multiconteneurs permet de configure les services, réseaux et volumes de l'app
+
+Docker Volumes : Mécanmises permettant de stocker des données générées et utilisées par les conteneurs. Les volumes sont indépendant du conteneur et persistent si le conteneur est supprimé (Ici, base de données)
+
+Docker Network : Permet aux conteneur de communiquer entre eux et avec le monde extérieur. Docker Compose en crée un par défaut mais important de le définir explicitement
+
+Env Vars : Permet de configurer les app à l'exécution, on les utilise pour passer des identifiants aux conteneurs sans les avoir en clair dans les images
+
+Docker Secrets : mécanisme + sécurisé pour gérer les données sensibles que les mdp, clefs ssh etc
+
