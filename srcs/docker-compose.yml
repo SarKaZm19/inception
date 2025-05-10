@@ -1,57 +1,51 @@
 # srcs/docker-compose.yml
-version: '3.8' # Utilisez une version compatible avec les secrets et networks
 
 services:
   nginx:
     container_name: nginx
     build:
-      context: ./requirements/nginx # Chemin vers le Dockerfile NGINX
-      dockerfile: Dockerfile
-    image: nginx_inception:1.0.0 # Nom de l'image et tag (pas latest)
+      context: ./requirements/nginx
+    image: nginx_inception
     ports:
-      - "443:443" # Mapper le port 443 de l'hôte au port 443 du conteneur NGINX
+      - "443:443" 
     volumes:
-      # Monter le dossier data de l'hôte (à créer si nécessaire)
-      - wordpress_files:/var/www/html # Monter le volume des fichiers WordPress
+      - wordpress_files:/var/www/html
     networks:
-      - inception_network # Attacher au réseau personnalisé
-    restart: on-failure # Redémarrer automatiquement en cas d'échec
+      - inception_network
+    depends_on:
+      - wordpress
+    env_file: .env
+    restart: always
 
   wordpress:
     container_name: wordpress
     build:
-      context: ./requirements/wordpress # Chemin vers le Dockerfile WordPress
-      dockerfile: Dockerfile
-    image: wordpress_inception:1.0.0 # Nom de l'image et tag (pas latest)
+      context: ./requirements/wordpress
+    image: wordpress_inception
     volumes:
-      - wordpress_files:/var/www/html # Monter le volume des fichiers WordPress
+      - wordpress_files:/var/www/html
     depends_on:
-      - mariadb # S'assurer que MariaDB est lancé avant WordPress
+      - mariadb
     env_file:
-      - .env # Charger les variables du fichier .env
+      - .env
     networks:
-      - inception_network # Attacher au réseau personnalisé
-    restart: on-failure # Redémarrer automatiquement en cas d'échec
+      - inception_network
+    restart: always
 
   mariadb:
     container_name: mariadb
     build:
-      context: ./requirements/mariadb # Chemin vers le Dockerfile MariaDB
-      dockerfile: Dockerfile
-    image: mariadb_inception:1.0.0 # Nom de l'image et tag (pas latest)
+      context: ./requirements/mariadb
+    image: mariadb_inception
+    ports:
+      - "3306:3306"
     volumes:
-      - mariadb_data:/var/lib/mysql # Monter le volume des données MariaDB
-    env_file:
-      - .env # Charger les variables du fichier .env
-    # Utilisation des secrets pour les mots de passe sensibles
-    secrets:
-      - db_root_password
-      - db_password
+      - mariadb_data:/var/lib/mysql
+    env_file: .env
     networks:
-      - inception_network # Attacher au réseau personnalisé
-    restart: on-failure # Redémarrer automatiquement en cas d'échec
+      - inception_network
+    restart: always
 
-# Définition des volumes persistants
 volumes:
   mariadb_data:
     driver: local
@@ -67,16 +61,6 @@ volumes:
       device: /home/fvastena/data/wordpress
 
 
-# Définition du réseau personnalisé
 networks:
   inception_network:
-    driver: bridge # Le driver bridge est le plus courant pour les applications multi-conteneurs
-
-# Définition des secrets utilisés (correspondant aux noms utilisés dans les services)
-secrets:
-  db_root_password:
-    file: ${MYSQL_ROOT_PASSWORD_FILE}
-  db_password:
-    file: ${MYSQL_PASSWORD_FILE}
-  wp_admin_password: # Exemple pour le mot de passe admin WP
-    file: ${WP_ADMIN_PASSWORD_FILE}
+    driver: bridge
