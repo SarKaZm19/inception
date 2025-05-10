@@ -4,21 +4,15 @@
 FROM debian:bookworm
 
 # Installer Nginx, OpenSSL (pour générer les certificats) et netcat (pour attendre WordPress)
-RUN apt-get update && apt-get install -y nginx openssl netcat \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y nginx openssl && rm -rf /var/lib/apt/lists/*
 
 # Copier la configuration Nginx
-COPY ./conf/nginx.conf /etc/nginx/conf.d/default.conf # Ou dans sites-available/ et créer un lien symbolique
+COPY ./conf/nginx.conf /etc/nginx/sites-available/default
 
 # Créer le répertoire pour les certificats SSL
 RUN mkdir -p /etc/nginx/ssl
 
-# Copier le script de génération de certificats et de démarrage
-COPY ./tools/start_nginx.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/start_nginx.sh
-
-# Exposer le port Nginx (celui mappé à l'hôte)
-EXPOSE 443
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/fvastena.key -out /etc/nginx/ssl/fvastena.crt -subj "/CN=fvastena"
 
 # Définir le point d'entrée
 CMD ["/usr/local/bin/start_nginx.sh"]
