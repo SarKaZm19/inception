@@ -15,4 +15,4 @@ RUN chmod 755 /var/www/html && \
 
 EXPOSE 443
 
-CMD ["/usr/local/bin/start_nginx.sh"]
+CMD ["nginx", "-g", "daemon off;"]

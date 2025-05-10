@@ -9,4 +9,4 @@ COPY ./conf/www.conf /etc/php/7.4/fpm/pool.d/
 COPY ./tools/start_wp.sh /usr/local/bin/start_wp.sh
 RUN chmod +x /usr/local/bin/start_wp.sh
 EXPOSE 9000
-ENTRYPOINT ["/usr/local/bin/auto_config.sh"]
+ENTRYPOINT ["/usr/local/bin/start_wp.sh"]
