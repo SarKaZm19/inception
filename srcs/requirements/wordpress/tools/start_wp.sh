@@ -1,9 +1,7 @@
 #!/bin/bash
 
 echo "En attente de la base de données..."
-until nc -z mariadb 3306; do
-    sleep 1
-done
+sleep 10
 echo "Base de données accessible."
 
 chown -R www-data:www-data /var/www/html
@@ -11,7 +9,8 @@ chmod -R 755 /var/www/html
 
 cd /var/www/html
 
-if [ ! -s "wp-config.php" ]; then
+if [ ! -s "wp-config.php" ]
+then
     echo "Téléchargement de Wordpress..."
 	wp core download --allow-root
 
@@ -28,4 +27,4 @@ else
 fi
 
 echo "Démarrage de PHP-FPM..."
-exec /usr/sbin/php-fpm8.2 -F
+exec /usr/sbin/php-fpm8.2-F
