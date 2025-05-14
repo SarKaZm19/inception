@@ -19,6 +19,23 @@ up:
 	@echo "Démarrage des conteneurs..."
 	docker compose -f $(COMPOSE_FILE) --env-file $(ENV_FILE) up -d
 
+down:
+	@echo "$(YELLOW)Arrêt des conteneurs...$(RESET)"
+	docker compose -f $(COMPOSE) down -v
+
+clean: 
+	@echo "Nettoyage des conteneurs, images et volumes..."
+	docker compose -f $(COMPOSE_FILE) down --volumes --rmi all --remove-orphans
+
+fclean: down
+	@echo "$(RED)Suppression complète des données et ressources Docker...$(RESET)"
+	$(DOCKER) system prune -af --volumes
+	sudo rm -rf $(HOME)/data
+
+prune:
+	@echo "$(RED)Nettoyage forcé de toutes les ressources Docker...$(RESET)"
+	$(DOCKER) system prune -af
+
 status:
 	@echo "$(GREEN)Statut des conteneurs:$(RESET)"
 	$(DOCKER) ps -a
@@ -26,24 +43,6 @@ status:
 	$(DOCKER) network ls
 	@echo "\n$(GREEN)Volumes:$(RESET)"
 	$(DOCKER) volume ls
-
-down:
-	@echo "$(YELLOW)Arrêt des conteneurs...$(RESET)"
-	$(DOCKER_COMPOSE) down -v
-
-
-clean: 
-	@echo "Nettoyage des conteneurs, images et volumes..."
-	docker compose -f $(COMPOSE_FILE) down --volumes --rmi all --remove-orphans
-
-prune:
-	@echo "$(RED)Nettoyage forcé de toutes les ressources Docker...$(RESET)"
-	$(DOCKER) system prune -af
-
-fclean: down
-	@echo "$(RED)Suppression complète des données et ressources Docker...$(RESET)"
-	$(DOCKER) system prune -af --volumes
-	sudo rm -rf $(HOME)/data
 
 re: clean all
 
