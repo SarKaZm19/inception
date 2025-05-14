@@ -21,7 +21,7 @@ up:
 
 down:
 	@echo "$(YELLOW)Arrêt des conteneurs...$(RESET)"
-	docker compose -f $(COMPOSE) down -v
+	docker compose -f $(COMPOSE_FILE) down -v
 
 clean: 
 	@echo "Nettoyage des conteneurs, images et volumes..."
