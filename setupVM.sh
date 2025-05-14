@@ -27,3 +27,6 @@ sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
 sudo usermod -aG docker $USER
 
 # Déconnectez-vous et reconnectez-vous pour que les changements de groupe prennent effet
+
+# Ajouter la config de l Host pour redirection localhost vers fvastena.42.fr
+sudo echo "127.0.0.1 fvastena.42.fr" >> /etc/hosts
