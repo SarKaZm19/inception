@@ -1,7 +1,6 @@
 # ~/inception/srcs/requirements/mariadb/tools/init_db.sh
 #!/bin/bash
 
-mysqld_safe --datadir=/var/lib/mysql &
 mkdir -p /var/run/mysqld
 chown -R mysql:mysql /var/run/mysqld
 
