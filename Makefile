@@ -38,7 +38,7 @@ clean:
 fclean: down
 	@echo "$(RED)Suppression complète des données et ressources Docker...$(RESET)"
 	$(DOCKER) system prune -af --volumes
-	sudo rm -rf $(DATA_PATH)
+	sudo rm -rf $(HOME)/data
 
 clean: down
 	@echo "Nettoyage des conteneurs, images et volumes..."
