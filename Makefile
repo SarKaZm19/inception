@@ -31,18 +31,19 @@ down:
 	@echo "$(YELLOW)Arrêt des conteneurs...$(RESET)"
 	$(DOCKER_COMPOSE) down -v
 
-clean:
-	@echo "$(YELLOW)Nettoyage des conteneurs, réseaux et volumes non utilisés...$(RESET)"
-	$(DOCKER) system prune -f
+
+clean: 
+	@echo "Nettoyage des conteneurs, images et volumes..."
+	docker compose -f $(COMPOSE_FILE) down --volumes --rmi all --remove-orphans
+
+prune:
+	@echo "$(RED)Nettoyage forcé de toutes les ressources Docker...$(RESET)"
+	$(DOCKER) system prune -af
 
 fclean: down
 	@echo "$(RED)Suppression complète des données et ressources Docker...$(RESET)"
 	$(DOCKER) system prune -af --volumes
 	sudo rm -rf $(HOME)/data
-
-clean: down
-	@echo "Nettoyage des conteneurs, images et volumes..."
-	docker compose -f $(COMPOSE_FILE) down --volumes --rmi all --remove-orphans
 
 re: clean all
 
