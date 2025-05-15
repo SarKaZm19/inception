@@ -41,7 +41,8 @@ services:
       - "3306:3306"
     volumes:
       - mariadb:/var/lib/mysql
-    env_file: .env
+    env_file: 
+      - .env
     networks:
       - inception_network
     restart: always
