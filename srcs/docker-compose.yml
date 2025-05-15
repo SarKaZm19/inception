@@ -52,13 +52,13 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: ~/data/mariadb
+      device: ${HOME}/data/mariadb
   wordpress:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ~/data/wordpress
+      device: ${HOME}/data/wordpress
 
 
 networks:

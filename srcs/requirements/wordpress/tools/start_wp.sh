@@ -27,4 +27,4 @@ else
 fi
 
 echo "Démarrage de PHP-FPM..."
-exec /usr/sbin/php-fpm8.2-F
+exec /usr/sbin/php-fpm8.2 -F

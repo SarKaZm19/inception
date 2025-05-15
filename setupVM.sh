@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Ajouter l USER au sudoers
+sudo usermod -aG sudo $USER
 
 # Mettre à jour les listes de paquets
 sudo apt update
@@ -10,9 +12,6 @@ sudo apt install apt-transport-https ca-certificates curl gnupg lsb-release -y
 
 # Ajouter la clé GPG officielle de Docker
 curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-# Ajouter l USER au sudoers
-sudo usermod -aG sudo $(USER)
 
 # Configurer le dépôt stable de Docker
 echo \
