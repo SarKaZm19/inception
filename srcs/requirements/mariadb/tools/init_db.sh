@@ -1,27 +1,37 @@
-# ~/inception/srcs/requirements/mariadb/tools/init_db.sh
 #!/bin/bash
 
-mkdir -p /var/run/mysqld
-chown -R mysql:mysql /var/run/mysqld
+# Création des répertoires requis s'ils n'existent pas
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+    # Initialisation de la base de données si elle n'existe pas
+    echo "Initialisation de la base de données MariaDB..."
+    mkdir -p /var/lib/mysql
+    chown -R mysql:mysql /var/lib/mysql
+    mysql_install_db --user=mysql --datadir=/var/lib/mysql
+else
+    echo "La base de données MariaDB existe déjà."
+fi
 
-mysqld_safe &
-while ! mysqladmin ping --silent; do
+# Démarrer MySQL en arrière-plan
+echo "Démarrage du service MariaDB..."
+service mariadb start
+
+# Attendre que MySQL soit prêt
+echo "Attente que MariaDB soit prêt..."
+until mysqladmin ping -h localhost --silent; do
     sleep 1
 done
 
-echo 'MariaDB démarré. Initialisation...'
+# Créer la base de données et l'utilisateur uniquement s'ils n'existent pas
+echo "Configuration de la base de données..."
+mysql -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};"
+mysql -e "CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+mysql -e "GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';"
+mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
+mysql -e "FLUSH PRIVILEGES;"
 
-mysql -u root -p"$MYSQL_ROOT_PASSWORD" <<-EOF
-CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
-CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
-ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-FLUSH PRIVILEGES;
-EOF
+# Arrêter MySQL pour pouvoir le relancer en premier plan
+echo "Redémarrage de MariaDB en mode premier plan..."
+service mariadb stop
 
-echo 'Initialisation de la base de données terminée.'
-
-mysqladmin -u root -p"${MYSQL_ROOT_PASSWORD}" shutdown
-
-echo 'Redémarrage de MariaDB...'
+# Démarrer MySQL en premier plan
 exec mysqld_safe
