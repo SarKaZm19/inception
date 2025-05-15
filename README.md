@@ -94,3 +94,11 @@ Env Vars : Permet de configurer les app à l'exécution, on les utilise pour pas
 
 Docker Secrets : mécanisme + sécurisé pour gérer les données sensibles que les mdp, clefs ssh etc
 
+
+--> Nouvelle VM :
+--> install git, make
+--> recup le repo
+--> lancer setupVM.sh
+--> Verifier si user dans sudoers et docker groups
+--> reboot pour appliquer les groupes
+--> make

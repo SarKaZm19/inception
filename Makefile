@@ -15,42 +15,42 @@ all: build up
 
 build:
 	@echo "$(BLUE)Montage des images Docker...$(RESET)"
-	@mkdir -p $(HOME)/data/wordpress
-	@mkdir -p $(HOME)/data/mariadb
-	@docker compose -f $(COMPOSE_FILE) build
+	mkdir -p $(HOME)/data/wordpress
+	mkdir -p $(HOME)/data/mariadb
+	docker compose -f $(COMPOSE_FILE) build
 
 # Lancer les conteneurs
 up:
 	@echo "$(GREEN)Démarrage des conteneurs...$(RESET)"
-	@docker compose -f $(COMPOSE_FILE) --env-file $(ENV_FILE) up -d
+	docker compose -f $(COMPOSE_FILE) --env-file $(ENV_FILE) up -d
 
 down:
 	@echo "$(YELLOW)Arrêt des conteneurs...$(RESET)"
-	@docker compose -f $(COMPOSE_FILE) down -v
+	docker compose -f $(COMPOSE_FILE) down -v
 
 clean: 
 	@echo "$(RED)Nettoyage des conteneurs, images et volumes...$(RESET)"
-	@docker compose -f $(COMPOSE_FILE) down --volumes --rmi all --remove-orphans
+	docker compose -f $(COMPOSE_FILE) down --volumes --rmi all --remove-orphans
 
 fclean: down
 	@echo "$(RED)Suppression complète des données et ressources Docker...$(RESET)"
-	@docker system prune -af --volumes
-	@sudo rm -rf $(HOME)/data
+	docker system prune -af --volumes
+	sudo rm -rf $(HOME)/data
 
 status:
 	@echo "$(BLUE)Statut des conteneurs:$(RESET)"
-	@docker ps -a
+	docker ps -a
 	@echo "\n$(BLUE)Réseaux:$(RESET)"
-	@docker network ls
+	docker network ls
 	@echo "\n$(BLUE)Volumes:$(RESET)"
-	@docker volume ls
+	docker volume ls
 
 check:
 	@echo "$(BLUE)Vérification des services...$(RESET)"
-	@docker ps | grep -q nginx && echo "$(GREEN)✓ NGINX est en cours d'exécution$(RESET)" || echo "$(RED)✗ NGINX n'est pas en cours d'exécution$(RESET)"
-	@docker ps | grep -q wordpress && echo "$(GREEN)✓ WordPress est en cours d'exécution$(RESET)" || echo "$(RED)✗ WordPress n'est pas en cours d'exécution$(RESET)"
-	@docker ps | grep -q mariadb && echo "$(GREEN)✓ MariaDB est en cours d'exécution$(RESET)" || echo "$(RED)✗ MariaDB n'est pas en cours d'exécution$(RESET)"
-	@curl -s -k -o /dev/null -w "$(GREEN)✓ Site web accessible: %{http_code}$(RESET)\n" https://fvastena.42.fr
+	docker ps | grep -q nginx && echo "$(GREEN)✓ NGINX est en cours d'exécution$(RESET)" || echo "$(RED)✗ NGINX n'est pas en cours d'exécution$(RESET)"
+	docker ps | grep -q wordpress && echo "$(GREEN)✓ WordPress est en cours d'exécution$(RESET)" || echo "$(RED)✗ WordPress n'est pas en cours d'exécution$(RESET)"
+	docker ps | grep -q mariadb && echo "$(GREEN)✓ MariaDB est en cours d'exécution$(RESET)" || echo "$(RED)✗ MariaDB n'est pas en cours d'exécution$(RESET)"
+	curl -s -k -o /dev/null -w "$(GREEN)✓ Site web accessible: %{http_code}$(RESET)\n" https://fvastena.42.fr
 
 help:
 	@echo "$(BLUE)════════════════════════ INCEPTION MAKEFILE ════════════════════════$(RESET)"

@@ -7,6 +7,9 @@ sudo usermod -aG sudo $USER
 sudo apt update
 sudo apt upgrade -y
 
+# installer make et git
+sudo apt install make git -y
+
 # Installer les paquets nécessaires pour ajouter des dépôts HTTPS
 sudo apt install apt-transport-https ca-certificates curl gnupg lsb-release -y
 
@@ -20,6 +23,7 @@ echo \
 
 # Mettre à jour les listes de paquets à nouveau et installer Docker Engine, containerd et Docker Compose
 sudo apt update
+
 sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
 
 # Ajouter votre utilisateur au groupe docker pour pouvoir exécuter docker sans sudo
