@@ -102,3 +102,7 @@ Docker Secrets : mécanisme + sécurisé pour gérer les données sensibles que 
 --> Verifier si user dans sudoers et docker groups
 --> reboot pour appliquer les groupes
 --> make
+--> Pour connexion sql via docker : 
+    docker exec -it mariadb mysql -u root -p wordpress_db
+    SHOW TABLES;
+    SELECT * FROM wp_comments LIMIT 10;
